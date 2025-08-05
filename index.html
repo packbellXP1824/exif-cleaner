@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="title">Nettoyeur de métadonnées EXIF</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <select id="languageSwitcher">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+      <option value="de">Deutsch</option>
+      <option value="es">Español</option>
+      <option value="it">Italiano</option>
+      <option value="pt">Português</option>
+      <option value="ru">Pусский</option>
+      <option value="zh">中文 (简体)</option>
+      <option value="ko">한국어</option>
+      <option value="jp">日本語</option>
+    </select>
+  </header>
+
+
+  <div class="container">
+    <h1 data-i18n="title">Nettoyeur d'EXIF</h1>
+    <p data-i18n="desc">Supprime les métadonnées de tes images pour protéger ta vie privée.</p>
+
+    <input type="file" id="fileInput" accept="image/*" style="display:none;">
+
+    <button id="chooseFileBtn" data-i18n="chooseFile">Choisir un fichier</button>
+    <span id="fileName" data-i18n="noFile">Aucun fichier choisi</span>
+
+    <br>
+    <button id="cleanButton" data-i18n="clean">Nettoyer l'image</button>
+    <a id="downloadLink" style="display:none" download="image-without-exif.jpg" data-i18n="download">Télécharger l’image nettoyée</a>
+  </div>
+
+
+  <script>
+    const translations = {
+      fr: {
+        title: "Nettoyeur d'EXIF",
+        desc: "Supprime les métadonnées de tes images pour protéger ta vie privée.",
+        clean: "Nettoyer l'image",
+        download: "Télécharger l’image nettoyée",
+        chooseFile: "Choisir un fichier",
+        noFile: "Aucun fichier choisi"
+      },
+      en: {
+        title: "EXIF Cleaner",
+        desc: "Remove image metadata to protect your privacy.",
+        clean: "Clean Image",
+        download: "Download cleaned image",
+        chooseFile: "Choose file",
+        noFile: "No file chosen"
+      },
+      de: {
+        title: "EXIF-Reiniger",
+        desc: "Entferne Bildmetadaten, um deine Privatsphäre zu schützen.",
+        clean: "Bild bereinigen",
+        download: "Bereinigtes Bild herunterladen",
+        chooseFile: "Datei auswählen",
+        noFile: "Keine Datei ausgewählt"
+      },
+      es: {
+        title: "Limpiador de EXIF",
+        desc: "Elimina los metadatos de la imagen para proteger tu privacidad.",
+        clean: "Limpiar imagen",
+        download: "Descargar imagen limpia",
+        chooseFile: "Elegir archivo",
+        noFile: "Ningún archivo seleccionado"
+      },
+      it: {
+        title: "Pulitore EXIF",
+        desc: "Rimuovi i metadati delle immagini per proteggere la tua privacy.",
+        clean: "Pulisci immagine",
+        download: "Scarica immagine pulita",
+        chooseFile: "Scegli file",
+        noFile: "Nessun file selezionato"
+      },
+      pt: {
+        title: "Limpador de EXIF",
+        desc: "Remova os metadados da imagem para proteger sua privacidade.",
+        clean: "Limpar imagem",
+        download: "Baixar imagem limpa",
+        chooseFile: "Escolher arquivo",
+        noFile: "Nenhum arquivo selecionado"
+      },
+      ru: {
+        title: "Очиститель EXIF",
+        desc: "Удалите метаданные изображения, чтобы защитить свою конфиденциальность.",
+        clean: "Очистить изображение",
+        download: "Скачать очищенное изображение",
+        chooseFile: "Выбрать файл",
+        noFile: "Файл не выбран"
+      },
+      zh: {
+        title: "EXIF 清理器",
+        desc: "移除图片元数据以保护您的隐私。",
+        clean: "清理图片",
+        download: "下载清理后的图片",
+        chooseFile: "选择文件",
+        noFile: "未选择文件"
+      },
+      ko: {
+        title: "EXIF 클리너",
+        desc: "개인 정보를 보호하기 위해 이미지 메타데이터를 제거하세요.",
+        clean: "이미지 정리",
+        download: "정리된 이미지 다운로드",
+        chooseFile: "파일 선택",
+        noFile: "선택된 파일 없음"
+      },
+      jp: {
+        title: "EXIFクリーナー",
+        desc: "プライバシーを保護するために画像のメタデータを削除します。",
+        clean: "画像をクリーニング",
+        download: "クリーニング済み画像をダウンロード",
+        chooseFile: "ファイルを選択",
+        noFile: "ファイルが選択されていません"
+      }
+    };
+
+  const switcher = document.getElementById('languageSwitcher');
+  const fileInput = document.getElementById('fileInput');
+  const fileNameSpan = document.getElementById('fileName');
+  const chooseFileBtn = document.getElementById('chooseFileBtn');
+  const cleanButton = document.getElementById('cleanButton');
+  const downloadLink = document.getElementById('downloadLink');
+
+  function switchLanguage(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[lang] && translations[lang][key]) {
+        el.textContent = translations[lang][key];
+      } else {
+        el.textContent = translations['en'][key] || key;
+      }
+    });
+
+  // Met à jour le texte du nom de fichier si aucun fichier n'est sélectionné
+  if (fileInput.files.length === 0) {
+    fileNameSpan.textContent = translations[lang].noFile;
+  }
+
+  localStorage.setItem('lang', lang);
+}
+
+  // Change la langue au changement dans le select
+  switcher.addEventListener('change', () => {
+    switchLanguage(switcher.value);
+  });
+
+  // Initialisation au chargement
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedLang = localStorage.getItem('lang') || 'fr';
+    switcher.value = savedLang;
+    switchLanguage(savedLang);
+  });
+
+  // Bouton "Choisir un fichier" déclenche input file caché
+  chooseFileBtn.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  // Affiche le nom du fichier sélectionné
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length > 0) {
+      fileNameSpan.textContent = fileInput.files[0].name;
+    } else {
+      fileNameSpan.textContent = translations[switcher.value]?.noFile || translations['fr'].noFile;
+    }
+  });
+
+  // Bouton "Nettoyer l'image"
+  cleanButton.addEventListener('click', () => {
+    if (fileInput.files.length === 0) {
+      alert(translations[switcher.value]?.chooseBeforeClean || translations['fr'].chooseBeforeClean);
+      return;
+    }
+
+    // Ici tu mets ta logique de nettoyage...
+    // Pour la démo, on active juste le lien téléchargement et on simule une URL
+    downloadLink.style.display = 'inline-block';
+    downloadLink.href = URL.createObjectURL(fileInput.files[0]);
+  });
+
+  // Optionnel : tu peux gérer un clic sur le lien download (par exemple le cacher après)
+  downloadLink.addEventListener('click', () => {
+    // Exemple : masquer le lien après téléchargement
+    // downloadLink.style.display = 'none';
+  });
+  </script>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
